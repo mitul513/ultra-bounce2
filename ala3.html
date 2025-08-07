@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ultra Neo Bounce™ v5</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
+            background: hsl(134, 82%, 45%);
+        }
+        
+        body::before {
+            content: 'Ansh Dhola';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            font-size: 15vw;
+            color: rgba(208, 196, 199, 0.903);
+            transform: translate(-50%, -50%);
+            letter-spacing: 10px;
+            z-index: 0;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.05), 0 0 50px rgba(255, 255, 255, 0.05);
+            white-space: nowrap;
+            user-select: none;
+            pointer-events: none;
+        }
+        
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .ball {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ea0c0c, #e10837);
+            box-shadow: 0 0 20px #ff00cc, 0 0 40px #3333ff, 0 0 80px #ffffff44, inset 0 0 20px #ffffff55;
+            transition: transform 0.1s ease;
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .floor {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+            height: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(6px);
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+            z-index: 1;
+        }
+        
+        @keyframes stars {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 1000px 1000px;
+            }
+        }
+        
+        body {
+            background: radial-gradient(ellipse at center, #0e0e2c 0%, #000000 100%);
+            background-size: cover;
+            animation: stars 60s linear infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div class="ball" id="ball"></div>
+        <div class="floor"></div>
+    </div>
+
+    <audio id="bounceSound" preload="auto"> 
+     <source src=" `https://assets.mixkit.co/sfx/preview/mixkit-soft-hit-cartoon-2365.mp3` " type="audio/mpeg"> 
+   </audio>
+
+    <script>
+        const ball = document.getElementById("ball");
+        const bounceSound = document.getElementById("bounceSound");
+
+        let posX = window.innerWidth / 2 - 60;
+        let posY = window.innerHeight - 150;
+        let velX = 0;
+        let velY = 0;
+        const gravity = 0.8;
+        const damping = 0.78;
+        const bouncePower = 25;
+
+        function updatePhysics() {
+            velY += gravity;
+            posY += velY;
+            posX += velX;
+
+            // Bottom collision 
+            const floorY = window.innerHeight - 30 - 120;
+            if (posY >= floorY) {
+                posY = floorY;
+                velY *= -damping;
+                if (Math.abs(velY) > 3) bounceSound.play();
+            }
+
+            // Walls 
+            if (posX <= 0 || posX + 120 >= window.innerWidth) {
+                velX *= -0.7;
+                posX = Math.max(0, Math.min(posX, window.innerWidth - 120));
+            }
+
+            velX *= 0.99; // Friction 
+
+            ball.style.transform = `translate(${posX}px, ${posY}px)`;
+            requestAnimationFrame(updatePhysics);
+        }
+
+        updatePhysics();
+
+        // Bounce on click or touch 
+        function bounce() {
+            velY = -bouncePower;
+            velX = (Math.random() - 0.5) * 16;
+        }
+
+        ball.addEventListener("click", bounce);
+        ball.addEventListener("touchstart", bounce);
+
+        // Window resize safety 
+        window.addEventListener("resize", () => {
+            posX = Math.min(posX, window.innerWidth - 120);
+            posY = Math.min(posY, window.innerHeight - 150);
+        });
+    </script>
+</body>
+
+</html>
